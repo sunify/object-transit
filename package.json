@@ -1,15 +1,29 @@
 {
   "name": "object-transit",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/index.js",
   "author": "Alex Lunyov <isuntc@gmail.com>",
   "license": "MIT",
   "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.3.1",
     "parcel-bundler": "^1.11.0"
   },
   "dependencies": {
     "hex-rgb": "^3.0.0",
     "rgb-hex": "^2.1.0",
     "tweeen": "1.0.3"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "index.d.ts"
+  ],
+  "scripts": {
+    "test": "exit 0",
+    "prebuild": "rm -rf dist && mkdir dist",
+    "build": "yarn prebuild && ./node_modules/.bin/babel src --out-dir dist",
+    "prepublish": "yarn build"
   }
 }
