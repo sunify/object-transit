@@ -38,41 +38,54 @@ const newValue = (keyType, percent) => {
   return newNumber(keyType.start, keyType.end, percent);
 }
 
-export default function transit(source, target, cb, { duration = 300, easing } = {}, end) {
-  const result = { ...source };
-  const keys = (
-    Object.keys(source)
-      .filter(key => getValueType(source[key]) !== undefined)
-      .filter(key => getValueType(target[key]) !== undefined)
-  );
-  const keyTypes = (
-    keys
-      .reduce((types, key) => {
-        const type = getValueType(source[key]);
-        types[key] = {
-          type,
-          start: parseValue(source[key], type),
-          end: parseValue(target[key], type),
+export default function transit(source, cb) {
+  const state = { ...source };
+  let currentTweeen;
+
+  return {
+    to(target, { duration = 300, easing, end, ...options } = {}) {
+      const keys = (
+        Object.keys(target)
+          .filter(key => getValueType(source[key]) !== undefined)
+          .filter(key => getValueType(target[key]) !== undefined)
+      );
+      const keyTypes = (
+        keys
+          .reduce((types, key) => {
+            const type = getValueType(source[key]);
+            types[key] = {
+              type,
+              start: parseValue(state[key], type),
+              end: parseValue(target[key], type),
+            }
+
+            return types;
+          }, {})
+      );
+
+      if (currentTweeen) {
+        currentTweeen();
+      }
+
+      currentTweeen = tweeen(0, 1, (percent) => {
+        const patch = {};
+        keys.forEach(key => {
+          patch[key] = newValue(keyTypes[key], percent);
+        });
+        Object.assign(state, patch);
+        if (typeof cb === 'function') {
+          cb(state);
         }
+      }, {
+        ...options,
+        duration,
+        easing,
+        end: typeof end === 'function' && (() => {
+          end(state);
+        }),
+      });
 
-        return types;
-      }, {})
-  );
-
-  return tweeen(0, 1, (percent) => {
-    const patch = {};
-    keys.forEach(key => {
-      patch[key] = newValue(keyTypes[key], percent);
-    });
-    Object.assign(result, patch);
-    if (typeof cb === 'function') {
-      cb(result);
+      return currentTweeen;
     }
-  }, {
-    duration,
-    easing,
-    end: typeof end === 'function' && (() => {
-      end(result);
-    })
-  });
+  };
 }
