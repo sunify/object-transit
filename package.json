@@ -1,5 +1,5 @@
 {
-  "name": "object-transition",
+  "name": "object-transit",
   "version": "1.0.0",
   "main": "index.js",
   "author": "Alex Lunyov <isuntc@gmail.com>",
@@ -8,6 +8,8 @@
     "parcel-bundler": "^1.11.0"
   },
   "dependencies": {
+    "hex-rgb": "^3.0.0",
+    "rgb-hex": "^2.1.0",
     "tweeen": "^1.0.2"
   }
 }
