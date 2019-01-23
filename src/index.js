@@ -2,7 +2,7 @@ import tweeen from 'tweeen';
 import rgbHex from 'rgb-hex';
 import hexRgb from 'hex-rgb';
 
-const hexColorRegex = /^#(?=[0-9a-f]*$)(?:.{3}|.{6})$/;
+const hexColorRegex = /^#(?=[0-9a-fA-F]*$)(?:.{3}|.{6})$/;
 const isNumber = n => typeof n === 'number';
 const isColor = c => hexColorRegex.test(c);
 
@@ -44,15 +44,17 @@ export default function transit(source, cb) {
 
   return {
     to(target, { duration = 300, easing, end, ...options } = {}) {
-      const keys = (
-        Object.keys(target)
-          .filter(key => getValueType(source[key]) !== undefined)
-          .filter(key => getValueType(target[key]) !== undefined)
-      );
+      const targetKeys = Object.keys(target).filter(key => getValueType(target[key]) !== undefined);
+      const keys = targetKeys.filter(key => getValueType(state[key]) !== undefined);
+
+      targetKeys.filter(key => getValueType(state[key]) === undefined).forEach(key => {
+        state[key] = target[key];
+      });
+
       const keyTypes = (
         keys
           .reduce((types, key) => {
-            const type = getValueType(source[key]);
+            const type = getValueType(state[key]);
             types[key] = {
               type,
               start: parseValue(state[key], type),

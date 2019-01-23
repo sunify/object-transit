@@ -3,3 +3,13 @@
   height: 100px;
   background-color: #000;
 }
+
+form {
+  position: relative;
+  z-index: 10;
+  display: flex;
+}
+
+form > * + * {
+  margin-left: 30px;
+}
