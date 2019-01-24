@@ -3,39 +3,24 @@ import rgbHex from 'rgb-hex';
 import hexRgb from 'hex-rgb';
 
 const hexColorRegex = /^#(?=[0-9a-fA-F]*$)(?:.{3}|.{6})$/;
-const isNumber = n => typeof n === 'number';
-const isColor = c => hexColorRegex.test(c);
+
+const types = {
+  number: {
+    test: n => typeof n === 'number',
+    parse: a => a,
+    prepare: a => a,
+    lerp: (start, end, percent) => start + (end - start) * percent,
+  },
+  color: {
+    test: c => hexColorRegex.test(c),
+    parse: v => hexRgb(v, { format: 'array' }),
+    prepare: v => `#${rgbHex(...v)}`,
+    lerp: (start, end, percent) => start.slice(0, 3).map((n, i) => types.number.lerp(n, end[i], percent)),
+  }
+}
 
 const getValueType = v => {
-  if (isNumber(v)) {
-    return 'number';
-  }
-
-  if (isColor(v)) {
-    return 'color';
-  }
-
-  return undefined;
-}
-
-const parseValue = (value, type) => {
-  if (type === 'color') {
-    return hexRgb(value, { format: 'array' });
-  }
-
-  return value;
-}
-
-const newNumber = (start, end, percent) => {
-  return start + (end - start) * percent;
-}
-
-const newValue = (keyType, percent) => {
-  if (keyType.type === 'color') {
-    const value = keyType.start.slice(0, 3).map((n, i) => newNumber(n, keyType.end[i], percent))
-    return `#${rgbHex(...value)}`;
-  }
-  return newNumber(keyType.start, keyType.end, percent);
+  return Object.keys(types).find(key => types[key].test(v));
 }
 
 export default function transit(source, cb) {
@@ -76,15 +61,15 @@ export default function transit(source, cb) {
 
       const keyTypes = (
         keys
-          .reduce((types, key) => {
+          .reduce((acc, key) => {
             const type = getValueType(state[key]);
-            types[key] = {
+            acc[key] = {
               type,
-              start: parseValue(state[key], type),
-              end: parseValue(target[key], type),
+              start: types[type].parse(state[key]),
+              end: types[type].parse(target[key]),
             }
 
-            return types;
+            return acc;
           }, {})
       );
 
@@ -93,7 +78,10 @@ export default function transit(source, cb) {
       currentTweeen = tweeen(0, 1, (percent) => {
         const patch = {};
         keys.forEach(key => {
-          patch[key] = newValue(keyTypes[key], percent);
+          const { type, start, end } = keyTypes[key];
+          patch[key] = types[type].prepare(
+            types[type].lerp(start, end, percent)
+          );
         });
         Object.assign(state, patch);
         if (typeof cb === 'function') {
