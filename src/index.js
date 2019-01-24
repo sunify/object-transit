@@ -3,6 +3,7 @@ import rgbHex from 'rgb-hex';
 import hexRgb from 'hex-rgb';
 
 const hexColorRegex = /^#(?=[0-9a-fA-F]*$)(?:.{3}|.{6})$/;
+const rgbColorRegex = /^rgb\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})\)$/;
 
 const types = {
   number: {
@@ -11,12 +12,18 @@ const types = {
     prepare: a => a,
     lerp: (start, end, percent) => start + (end - start) * percent,
   },
-  color: {
+  hexColor: {
     test: c => hexColorRegex.test(c),
     parse: v => hexRgb(v, { format: 'array' }),
     prepare: v => `#${rgbHex(...v)}`,
     lerp: (start, end, percent) => start.slice(0, 3).map((n, i) => types.number.lerp(n, end[i], percent)),
-  }
+  },
+  rgbColor: {
+    test: c => rgbColorRegex.test(c),
+    parse: v => v.match(/^rgb\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})\)$/).slice(1, 4).map(Number),
+    prepare: v => `rgb(${v.map(Math.round).join(', ')})`,
+    lerp: (start, end, percent) => start.slice(0, 3).map((n, i) => types.number.lerp(n, end[i], percent)),
+  },
 }
 
 const getValueType = v => {
