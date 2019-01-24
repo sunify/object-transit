@@ -6,7 +6,9 @@ declare module 'object-transit' {
   } & TweenParams;
   export type Stop = () => void;
   export type Methods = {
-    to: (target: Obj, params: Params) => Stop;
+    to: (target: Obj, params: Params) => Methods;
+    assing: (target: Obj) => Methods;
+    stop: () => Methods;
   };
 
   function transit(object: Obj, cb: (object: Obj) => void): Methods;

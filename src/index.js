@@ -42,9 +42,19 @@ export default function transit(source, cb) {
   const state = { ...source };
   let currentTweeen;
 
-  return {
+  const instance = {
     assign(target) {
       Object.assign(state, target);
+      if (typeof cb === 'function') {
+        cb(state);
+      }
+      return instance;
+    },
+    stop() {
+      if (currentTweeen) {
+        currentTweeen();
+        currentTweeen = undefined;
+      }
     },
     to(target, { duration = 300, easing, end, ...options } = {}) {
       const targetKeys = Object.keys(target).filter(key => getValueType(target[key]) !== undefined);
@@ -68,9 +78,7 @@ export default function transit(source, cb) {
           }, {})
       );
 
-      if (currentTweeen) {
-        currentTweeen();
-      }
+      this.stop();
 
       currentTweeen = tweeen(0, 1, (percent) => {
         const patch = {};
@@ -90,7 +98,9 @@ export default function transit(source, cb) {
         }),
       });
 
-      return currentTweeen;
+      return instance;
     }
   };
+
+  return instance;
 }

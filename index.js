@@ -4,8 +4,6 @@ const obj = document.getElementById('obj');
 const jsonInput = document.getElementById('json');
 const resultInput = document.getElementById('result');
 
-const initialStyle = { bg1: '#0fc', bg2: '#f00', scale: 1.2, left: 10, count: 0 };
-
 const applyStyle = (style) => {
   obj.style.transform = `translate(${style.left}px, 40px) scale(${style.scale})`;
   obj.style.color = style.color || '#000';
@@ -14,8 +12,8 @@ const applyStyle = (style) => {
   resultInput.value = JSON.stringify(style, undefined, 2);
 };
 
-const blockStyle = transit(initialStyle, applyStyle);
-applyStyle(initialStyle);
+const blockStyle = transit({}, applyStyle);
+blockStyle.assign(JSON.parse(jsonInput.value));
 
 const transitOptions = {
   duration: 300,
