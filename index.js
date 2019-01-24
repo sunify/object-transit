@@ -16,50 +16,76 @@ function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) r
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 var hexColorRegex = /^#(?=[0-9a-fA-F]*$)(?:.{3}|.{6})$/;
+var rgbColorRegex = /^rgb\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})\)$/;
+var rgbaColorRegex = /^rgba\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3}),\s*(\d+(?:\.\d+)?)\)$/;
 
-var isNumber = function isNumber(n) {
-  return typeof n === 'number';
-};
-
-var isColor = function isColor(c) {
-  return hexColorRegex.test(c);
-};
-
-var getValueType = function getValueType(v) {
-  if (isNumber(v)) {
-    return 'number';
-  }
-
-  if (isColor(v)) {
-    return 'color';
-  }
-
-  return undefined;
-};
-
-var parseValue = function parseValue(value, type) {
-  if (type === 'color') {
-    return (0, _hexRgb.default)(value, {
-      format: 'array'
-    });
-  }
-
-  return value;
-};
-
-var newNumber = function newNumber(start, end, percent) {
+var lerp = function lerp(start, end, percent) {
   return start + (end - start) * percent;
 };
 
-var newValue = function newValue(keyType, percent) {
-  if (keyType.type === 'color') {
-    var value = keyType.start.slice(0, 3).map(function (n, i) {
-      return newNumber(n, keyType.end[i], percent);
-    });
-    return "#" + _rgbHex.default.apply(void 0, value);
-  }
+var lerpArray = function lerpArray(start, end, percent) {
+  return start.map(function (n, i) {
+    return lerp(n, end[i], percent);
+  });
+};
 
-  return newNumber(keyType.start, keyType.end, percent);
+var types = {
+  number: {
+    test: function test(n) {
+      return typeof n === 'number';
+    },
+    parse: function parse(a) {
+      return a;
+    },
+    prepare: function prepare(a) {
+      return a;
+    },
+    interpolate: lerp
+  },
+  hexColor: {
+    test: function test(c) {
+      return hexColorRegex.test(c);
+    },
+    parse: function parse(v) {
+      return (0, _hexRgb.default)(v, {
+        format: 'array'
+      }).slice(0, 3);
+    },
+    prepare: function prepare(v) {
+      return "#" + _rgbHex.default.apply(void 0, v);
+    },
+    interpolate: lerpArray
+  },
+  rgbColor: {
+    test: function test(c) {
+      return rgbColorRegex.test(c);
+    },
+    parse: function parse(v) {
+      return v.match(rgbColorRegex).slice(1, 4).map(Number);
+    },
+    prepare: function prepare(v) {
+      return "rgb(" + v.map(Math.round).join(', ') + ")";
+    },
+    interpolate: lerpArray
+  },
+  rgbaColor: {
+    test: function test(c) {
+      return rgbaColorRegex.test(c);
+    },
+    parse: function parse(v) {
+      return v.match(rgbaColorRegex).slice(1, 5).map(Number);
+    },
+    prepare: function prepare(v) {
+      return "rgba(" + v.slice(0, 3).map(Math.round).join(', ') + ", " + v[3] + ")";
+    },
+    interpolate: lerpArray
+  }
+};
+
+var getValueType = function getValueType(v) {
+  return Object.keys(types).find(function (key) {
+    return types[key].test(v);
+  });
 };
 
 function transit(source, cb) {
@@ -110,20 +136,24 @@ function transit(source, cb) {
       }).forEach(function (key) {
         state[key] = target[key];
       });
-      var keyTypes = keys.reduce(function (types, key) {
+      var keyTypes = keys.reduce(function (acc, key) {
         var type = getValueType(state[key]);
-        types[key] = {
+        acc[key] = {
           type: type,
-          start: parseValue(state[key], type),
-          end: parseValue(target[key], type)
+          start: types[type].parse(state[key]),
+          end: types[type].parse(target[key])
         };
-        return types;
+        return acc;
       }, {});
       this.stop();
       currentTweeen = (0, _tweeen.default)(0, 1, function (percent) {
         var patch = {};
         keys.forEach(function (key) {
-          patch[key] = newValue(keyTypes[key], percent);
+          var _keyTypes$key = keyTypes[key],
+              type = _keyTypes$key.type,
+              start = _keyTypes$key.start,
+              end = _keyTypes$key.end;
+          patch[key] = types[type].prepare(types[type].interpolate(start, end, percent));
         });
         Object.assign(state, patch);
 
