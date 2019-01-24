@@ -42,13 +42,23 @@ export default function transit(source, cb) {
   const state = { ...source };
   let currentTweeen;
 
+  const proxy = new Proxy(state, {
+    get(obj, prop) {
+      if (obj.hasOwnProperty(prop)) {
+        return obj[prop];
+      }
+
+      return instance[prop];
+    }
+  });
+
   const instance = {
     assign(target) {
       Object.assign(state, target);
       if (typeof cb === 'function') {
         cb(state);
       }
-      return instance;
+      return proxy;
     },
     stop() {
       if (currentTweeen) {
@@ -98,9 +108,9 @@ export default function transit(source, cb) {
         }),
       });
 
-      return instance;
+      return proxy;
     }
   };
 
-  return instance;
+  return proxy;
 }

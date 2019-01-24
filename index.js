@@ -12,8 +12,10 @@ const applyStyle = (style) => {
   resultInput.value = JSON.stringify(style, undefined, 2);
 };
 
-const blockStyle = transit({}, applyStyle);
-blockStyle.assign(JSON.parse(jsonInput.value));
+const initial = JSON.parse(jsonInput.value);
+const blockStyle = transit(initial, applyStyle);
+applyStyle(initial);
+console.log(blockStyle);
 
 const transitOptions = {
   duration: 300,
