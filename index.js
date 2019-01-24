@@ -66,7 +66,31 @@ function transit(source, cb) {
   var state = _extends({}, source);
 
   var currentTweeen;
-  return {
+  var proxy = new Proxy(state, {
+    get: function get(obj, prop) {
+      if (obj.hasOwnProperty(prop)) {
+        return obj[prop];
+      }
+
+      return instance[prop];
+    }
+  });
+  var instance = {
+    assign: function assign(target) {
+      Object.assign(state, target);
+
+      if (typeof cb === 'function') {
+        cb(state);
+      }
+
+      return proxy;
+    },
+    stop: function stop() {
+      if (currentTweeen) {
+        currentTweeen();
+        currentTweeen = undefined;
+      }
+    },
     to: function to(target, _temp) {
       var _ref = _temp === void 0 ? {} : _temp,
           _ref$duration = _ref.duration,
@@ -95,11 +119,7 @@ function transit(source, cb) {
         };
         return types;
       }, {});
-
-      if (currentTweeen) {
-        currentTweeen();
-      }
-
+      this.stop();
       currentTweeen = (0, _tweeen.default)(0, 1, function (percent) {
         var patch = {};
         keys.forEach(function (key) {
@@ -117,7 +137,8 @@ function transit(source, cb) {
           end(state);
         }
       }));
-      return currentTweeen;
+      return proxy;
     }
   };
+  return proxy;
 }
