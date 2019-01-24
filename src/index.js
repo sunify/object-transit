@@ -43,6 +43,9 @@ export default function transit(source, cb) {
   let currentTweeen;
 
   return {
+    assign(target) {
+      Object.assign(state, target);
+    },
     to(target, { duration = 300, easing, end, ...options } = {}) {
       const targetKeys = Object.keys(target).filter(key => getValueType(target[key]) !== undefined);
       const keys = targetKeys.filter(key => getValueType(state[key]) !== undefined);
