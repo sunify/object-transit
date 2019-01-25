@@ -16,7 +16,7 @@
     "@types/rgb-hex": "^2.1.0",
     "hex-rgb": "^3.0.0",
     "rgb-hex": "^2.1.0",
-    "tweeen": "1.0.3"
+    "tweeen": "1.0.5"
   },
   "files": [
     "dist",
@@ -30,5 +30,6 @@
     "prepublish": "yarn build",
     "start-demo": "./node_modules/.bin/parcel index.html --open --out-dir=demo",
     "build-demo": "./node_modules/.bin/parcel build --out-dir=demo --public-url '.' index.html"
-  }
+  },
+  "repository": "git@github.com:sunify/object-transit.git"
 }

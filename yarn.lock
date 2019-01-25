@@ -4344,9 +4344,9 @@ tty-browserify@0.0.0:
   version "0.0.0"
   resolved "https://registry.yarnpkg.com/tty-browserify/-/tty-browserify-0.0.0.tgz#a157ba402da24e9bf957f9aa69d524eed42901a6"
 
-tweeen@1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/tweeen/-/tweeen-1.0.3.tgz#628d598300cd52cee7cae22be0c840609c2855bc"
+tweeen@1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/tweeen/-/tweeen-1.0.5.tgz#5308c07c03105e76a11583cad327b82a4f100960"
   dependencies:
     run-with-fps "^1.0.4"
 
