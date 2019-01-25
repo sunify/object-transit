@@ -1,17 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Object transition</title>
-  <link rel="stylesheet" href="demo.css" />
-</head>
-<body>
-  <form>
-    <div>
-      <h4>Transition to</h4>
-      <textarea id="json" cols="30" rows="10">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Object transition</title>
+    <link rel="stylesheet" href="demo.css" />
+  </head>
+  <body>
+    <h1>
+      <a href="https://github.com/sunify/object-transit">object-transit</a> demo
+    </h1>
+    <div class="demos">
+      <div class="demo demo-playground">
+        <h2>Playground</h2>
+        <form>
+          <div>
+            <h4>Transition to</h4>
+            <textarea id="json" cols="30" rows="10">
 {
   "bg1": "#0fc",
   "bg2": "#f00",
@@ -19,15 +25,34 @@
   "left": 10,
   "count": 0
 }
-      </textarea>
+            </textarea>
+          </div>
+          <div>
+            <h4>Result</h4>
+            <textarea id="result" readonly cols="30" rows="10"></textarea>
+          </div>
+        </form>
+        <div id="obj"></div>
+      </div>
+
+      <div class="demo">
+        <h2>Gradient</h2>
+        <div class="cols">
+          <div id="grad"></div>
+          <form>
+            <textarea type="text" id="colors" rows="10">
+#cf0
+#0fc
+#ff0
+#f0c
+#fc0
+          </textarea
+            ><br />
+            <button type="button" id="colorsSubmit">Switch</button>
+          </form>
+        </div>
+      </div>
     </div>
-    <div>
-      <h4>Result</h4>
-      <textarea id="result" readonly cols="30" rows="10"></textarea>
-    </div>
-  </form>
-  <div id="obj"></div>
-  <div id="grad"></div>
-  <script src="demo.js"></script>
-</body>
+    <script src="demo.js"></script>
+  </body>
 </html>

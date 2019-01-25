@@ -21,8 +21,8 @@ const interpolate = <T extends number | number[]>(
   end: T,
   percent: number
 ) => {
-  if (Array.isArray(start)) {
-    return lerpArray(start as number[], end as number[], percent);
+  if (Array.isArray(start) && Array.isArray(end)) {
+    return lerpArray(start, end, percent);
   }
 
   return lerp(start as number, end as number, percent);

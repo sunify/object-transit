@@ -7,10 +7,17 @@ import transit from 'object-transit';
 
 const object = transit({ a: 0 }, console.log);
 
-object.to({ a: 100 }, {
-  duration: 300
-});
+object.to(
+  { a: 100 },
+  {
+    duration: 300
+  }
+);
 ```
+
+## Demo
+
+https://sunify.github.io/object-transit/
 
 ## Params
 

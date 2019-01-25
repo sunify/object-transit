@@ -2,6 +2,8 @@ import transit from './src/index.ts';
 
 const obj = document.getElementById('obj');
 const jsonInput = document.getElementById('json');
+const colorsInput = document.getElementById('colors');
+const colorsSubmit = document.getElementById('colorsSubmit');
 const resultInput = document.getElementById('result');
 const gradient = document.getElementById('grad');
 
@@ -34,28 +36,57 @@ jsonInput.addEventListener('keyup', () => {
   }
 });
 
-let curColor = -1;
-const colors = ['#cf0', '#0fc', '#ff0', '#f0c', '#fc0'];
-const gradColors = transit(
-  { c1: colors[colors.length - 1], c2: colors[0] },
-  ({ c1, c2 }) => {
-    gradient.style.backgroundImage = `linear-gradient(${c1}, ${c2})`;
-  }
-);
-
-const updateColors = () => {
-  curColor = (curColor + 1) % colors.length;
-  const nextColor = (curColor + 1) % colors.length;
-  gradColors.to(
-    {
-      c1: colors[curColor],
-      c2: colors[nextColor]
-    },
-    {
-      end: updateColors,
-      duration: 2000
+function gradientDemo(colors) {
+  let curColor = -1;
+  let stopped = false;
+  const gradColors = transit(
+    { c1: colors[colors.length - 1], c2: colors[0] },
+    ({ c1, c2 }) => {
+      gradient.style.backgroundImage = `linear-gradient(${c1}, ${c2})`;
     }
   );
-};
 
-updateColors();
+  const updateColors = () => {
+    if (stopped) {
+      return;
+    }
+    curColor = (curColor + 1) % colors.length;
+    const nextColor = (curColor + 1) % colors.length;
+    gradColors.to(
+      {
+        c1: colors[curColor],
+        c2: colors[nextColor]
+      },
+      {
+        end: updateColors,
+        duration: 2000
+      }
+    );
+  };
+
+  updateColors();
+
+  return () => {
+    gradColors.stop();
+    stopped = true;
+  };
+}
+
+let currGradientDemo = gradientDemo(
+  colorsInput.value
+    .trim()
+    .split('\n')
+    .map(s => s.trim())
+);
+
+colorsSubmit.addEventListener('click', () => {
+  if (currGradientDemo) {
+    currGradientDemo();
+  }
+  currGradientDemo = gradientDemo(
+    colorsInput.value
+      .trim()
+      .split('\n')
+      .map(s => s.trim())
+  );
+});
