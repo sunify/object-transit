@@ -633,6 +633,10 @@
     "@parcel/utils" "^1.11.0"
     physical-cpu-count "^2.0.0"
 
+"@types/hex-rgb@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@types/hex-rgb/-/hex-rgb-3.0.0.tgz#cdba67923a9e8753062bf44865a4f94aa987a4bf"
+
 "@types/node@^10.11.7":
   version "10.12.18"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.18.tgz#1d3ca764718915584fcd9f6344621b7672665c67"
@@ -640,6 +644,10 @@
 "@types/q@^1.5.1":
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/@types/q/-/q-1.5.1.tgz#48fd98c1561fe718b61733daed46ff115b496e18"
+
+"@types/rgb-hex@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@types/rgb-hex/-/rgb-hex-2.1.0.tgz#6b2190e705a909f7aa3437a0284b568ed3d8c186"
 
 "@types/semver@^5.5.0":
   version "5.5.0"
@@ -4351,6 +4359,10 @@ type-check@~0.3.2:
 typedarray@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
+
+typescript@^3.2.4:
+  version "3.2.4"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.2.4.tgz#c585cb952912263d915b462726ce244ba510ef3d"
 
 unicode-canonical-property-names-ecmascript@^1.0.4:
   version "1.0.4"
