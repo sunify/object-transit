@@ -4,7 +4,7 @@ body {
 }
 
 body {
-  padding: 20px 100px;
+  padding: 20px 10vw;
 }
 
 h1 {
@@ -59,4 +59,23 @@ a {
 
 .cols {
   display: flex;
+}
+
+@media screen and (max-width: 800px) {
+  .demos {
+    display: block;
+  }
+
+  h1 {
+    margin-bottom: 50px;
+  }
+
+  .demo-playground form {
+    display: block;
+  }
+
+  .demo-playground form > * + * {
+    margin-left: 0;
+    display: none;
+  }
 }
