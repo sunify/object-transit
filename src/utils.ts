@@ -6,10 +6,10 @@ export function keys<T>(object: T): Array<keyof T> {
   return Object.keys(object) as any;
 }
 
-export const updateValues = <T>(
+export const updateValues = <T, P>(
   state: T,
   source: T,
-  target: T,
+  target: { [key in keyof T & P]?: (T & P)[keyof T & P] },
   percent: number
 ) => {
   const targetKeys = keys(target).filter(
@@ -38,3 +38,14 @@ export const applyNewKeys = <T>(state: Target<T>, target: T) => {
       state[key] = target[key];
     });
 };
+
+export const lerp = (start: number, end: number, percent: number) => {
+  if (start === end) {
+    return start;
+  }
+
+  return start + (end - start) * percent;
+};
+
+export const lerpArray = (start: number[], end: number[], percent: number) =>
+  start.map((n, i) => lerp(n, end[i], percent));
