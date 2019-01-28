@@ -3,8 +3,8 @@ import hexRgb from 'hex-rgb';
 import { lerpArray } from './utils';
 
 const hexColorRegex = /^#(?=[0-9a-fA-F]*$)(?:.{3}|.{4}|.{6}|.{8})$/;
-const rgbColorRegex = /^rgb\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})\)$/;
-const rgbaColorRegex = /^rgba\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3}),\s*(\d+(?:\.\d+)?)\)$/;
+const rgbColorRegex = /^rgb\((\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\)$/;
+const rgbaColorRegex = /^rgba\((\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d+(?:\.\d+)?|\.\d+)\)$/;
 
 export const isColor = (c: any) =>
   hexColorRegex.test(String(c)) ||
@@ -37,26 +37,20 @@ export const parseColor = (color: string) => {
   return undefined;
 };
 
-export const stringifyColor = (
-  color: number[],
-  source: string,
-  target: string
-) => {
+export const stringifyColor = (color: number[], target: string) => {
   const [r, g, b] = color.slice(0, 3).map(Math.round);
   const a = color[3];
 
-  if (source && target) {
-    if (hexColorRegex.test(target)) {
-      if (a === 1) {
-        return `#${rgbHex(r, g, b)}`;
-      }
-
-      return `#${rgbHex(r, g, b, a)}`;
+  if (hexColorRegex.test(target)) {
+    if (a === 1) {
+      return `#${rgbHex(r, g, b)}`;
     }
 
-    if (rgbColorRegex.test(target) && a === 1) {
-      return `rgb(${r}, ${g}, ${b})`;
-    }
+    return `#${rgbHex(r, g, b, a)}`;
+  }
+
+  if (rgbColorRegex.test(target) && a === 1) {
+    return `rgb(${r}, ${g}, ${b})`;
   }
 
   return `rgba(${r}, ${g}, ${b}, ${a})`;
@@ -79,7 +73,7 @@ export const interpolateColor = (
   const endColor = parseColor(end);
 
   if (startColor && endColor) {
-    return stringifyColor(lerpArray(startColor, endColor, percent), start, end);
+    return stringifyColor(lerpArray(startColor, endColor, percent), end);
   }
 
   return undefined;
