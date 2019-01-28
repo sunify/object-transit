@@ -6,106 +6,108 @@ const hexColorRegex = /^#(?=[0-9a-fA-F]*$)(?:.{3}|.{6})$/;
 const rgbColorRegex = /^rgb\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})\)$/;
 const rgbaColorRegex = /^rgba\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3}),\s*(\d+(?:\.\d+)?)\)$/;
 
-const lerp = (start: number, end: number, percent: number) =>
-  start + (end - start) * percent;
-const lerpArray = (start: number[], end: number[], percent: number) =>
-  start.map((n, i) => lerp(n, end[i], percent));
-
-export type Interpolate<T extends number | number[]> = (
-  start: T,
-  end: T,
-  percent: number
-) => T;
-const interpolate = <T extends number | number[]>(
-  start: T,
-  end: T,
-  percent: number
-) => {
-  if (Array.isArray(start) && Array.isArray(end)) {
-    return lerpArray(start, end, percent);
+const lerp = (start: number, end: number, percent: number) => {
+  if (start === end) {
+    return start;
   }
 
-  return lerp(start as number, end as number, percent);
+  return start + (end - start) * percent;
 };
+const lerpArray = (start: number[], end: number[], percent: number) =>
+  start.map((n, i) => lerp(n, end[i], percent));
 
 export enum Types {
   number,
   color
 }
 
-export type Type<T extends number | number[], P> = {
-  test: (value: any) => boolean;
-  parse: (value: P) => T;
-  prepare: (value: T, source?: P, target?: P) => P;
-  interpolate: Interpolate<T>;
+export type Type<P> = {
+  test: (value: unknown) => boolean;
+  interpolate: (start: P, end: P, percent: number) => P | undefined;
 };
 
-const types = {
-  [Types.number]: {
-    test: (n: any) => typeof n === 'number',
-    parse: Number,
-    prepare: Number,
-    interpolate: interpolate as Interpolate<number>
-  } as Type<number, number>,
-  [Types.color]: {
-    test: (c: string) =>
-      hexColorRegex.test(c) || rgbColorRegex.test(c) || rgbaColorRegex.test(c),
-    parse: (v: string) => {
-      if (hexColorRegex.test(v)) {
-        return hexRgb(v, { format: 'array' })
-          .slice(0, 3)
-          .concat([1]);
-      }
+const parseColor = (color: string) => {
+  if (hexColorRegex.test(color)) {
+    return hexRgb(color, { format: 'array' })
+      .slice(0, 3)
+      .concat([1]);
+  }
 
-      if (rgbColorRegex.test(v)) {
-        const match = v.match(rgbColorRegex);
-        if (match) {
-          return match
-            .slice(1, 4)
-            .map(Number)
-            .concat([1]);
-        }
-      }
+  if (rgbColorRegex.test(color)) {
+    const match = color.match(rgbColorRegex);
+    if (match) {
+      return match
+        .slice(1, 4)
+        .map(Number)
+        .concat([1]);
+    }
+  }
 
-      if (rgbaColorRegex.test(v)) {
-        const match = v.match(rgbaColorRegex);
-        if (match) {
-          return match.slice(1, 5).map(Number);
-        }
-      }
+  if (rgbaColorRegex.test(color)) {
+    const match = color.match(rgbaColorRegex);
+    if (match) {
+      return match.slice(1, 5).map(Number);
+    }
+  }
 
-      return undefined;
-    },
-    prepare: (v: number[], source, target) => {
-      const [r, g, b] = v.slice(0, 3).map(Math.round);
-      const a = v[3];
+  return undefined;
+};
 
-      if (source && target) {
-        if (!rgbaColorRegex.test(source) && hexColorRegex.test(target)) {
+const stringifyColor = (color: number[], source: string, target: string) => {
+  const [r, g, b] = color.slice(0, 3).map(Math.round);
+  const a = color[3];
+
+  if (source && target) {
+    if (!rgbaColorRegex.test(source) && hexColorRegex.test(target)) {
+      return `#${rgbHex(r, g, b)}`;
+    }
+
+    if (!rgbaColorRegex.test(source) && rgbColorRegex.test(target)) {
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    if (rgbaColorRegex.test(source) && !rgbaColorRegex.test(target)) {
+      if (a === 1) {
+        if (hexColorRegex.test(target)) {
           return `#${rgbHex(r, g, b)}`;
         }
 
-        if (!rgbaColorRegex.test(source) && rgbColorRegex.test(target)) {
+        if (rgbColorRegex.test(target)) {
           return `rgb(${r}, ${g}, ${b})`;
         }
+      }
+    }
+  }
 
-        if (rgbaColorRegex.test(source) && !rgbaColorRegex.test(target)) {
-          if (a === 1) {
-            if (hexColorRegex.test(target)) {
-              return `#${rgbHex(r, g, b)}`;
-            }
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
+};
 
-            if (rgbColorRegex.test(target)) {
-              return `rgb(${r}, ${g}, ${b})`;
-            }
-          }
-        }
+const types: {
+  [Types.number]: Type<number>;
+  [Types.color]: Type<string>;
+} = {
+  [Types.number]: {
+    test: (n: any) => typeof n === 'number',
+    interpolate: lerp
+  } as Type<number>,
+  [Types.color]: {
+    test: (c: string) =>
+      hexColorRegex.test(c) || rgbColorRegex.test(c) || rgbaColorRegex.test(c),
+    interpolate: (start, end, percent) => {
+      const startColor = parseColor(start);
+      const endColor = parseColor(end);
+
+      if (startColor && endColor) {
+        return stringifyColor(
+          lerpArray(startColor, endColor, percent),
+          start,
+          end
+        );
       }
 
-      return `rgba(${r}, ${g}, ${b}, ${a})`;
-    },
-    interpolate: interpolate as Interpolate<number[]>
-  } as Type<number[], string>
+      return undefined;
+    }
+  } as Type<string>
 };
 
 export const getValueType = (v: any) => {

@@ -9,7 +9,7 @@ export function keys<T>(object: T): Array<keyof T> {
 export const updateValues = <T>(
   state: T,
   source: T,
-  target: Object,
+  target: T,
   percent: number
 ) => {
   const targetKeys = keys(target).filter(
@@ -20,14 +20,10 @@ export const updateValues = <T>(
   targetKeys.forEach(key => {
     const type = getValueType(source[key]);
     if (type) {
-      patch[key] = types[type].prepare(
-        types[type].interpolate(
-          types[type].parse(source[key] as any),
-          types[type].parse(target[key] as any),
-          percent
-        ),
+      patch[key] = types[type].interpolate(
         source[key] as any,
-        target[key] as any
+        target[key] as any,
+        percent
       ) as any;
     }
   });
