@@ -5,7 +5,6 @@
   "author": "Alex Lunyov <isuntc@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "@babel/cli": "^7.2.3",
     "@babel/core": "^7.2.2",
     "@babel/preset-env": "^7.3.1",
     "@types/jest": "^23.3.13",
@@ -15,19 +14,16 @@
     "typescript": "^3.2.4"
   },
   "dependencies": {
-    "@types/hex-rgb": "^3.0.0",
-    "@types/rgb-hex": "^2.1.0",
-    "hex-rgb": "^3.0.0",
-    "rgb-hex": "^2.1.0",
+    "@sunify/lerp-color": "^1.0.0",
+    "lerp": "^1.0.3",
     "tweeen": "1.0.5"
   },
   "files": [
     "dist",
-    "README.md",
-    "index.d.ts"
+    "README.md"
   ],
   "scripts": {
-    "test": "./node_modules/.bin/jest",
+    "test": "./node_modules/.bin/jest --passWithNoTests",
     "test:watch": "./node_modules/.bin/jest --watch",
     "prebuild": "rm -rf dist && mkdir dist",
     "build": "yarn prebuild && ./node_modules/.bin/tsc",

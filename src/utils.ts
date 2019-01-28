@@ -1,4 +1,4 @@
-import types, { getValueType } from './types';
+import { types, getValueType } from './types';
 
 type Target<T> = { [key in keyof T]?: T[keyof T] };
 
@@ -38,14 +38,3 @@ export const applyNewKeys = <T>(state: Target<T>, target: T) => {
       state[key] = target[key];
     });
 };
-
-export const lerp = (start: number, end: number, percent: number) => {
-  if (start === end) {
-    return start;
-  }
-
-  return start + (end - start) * percent;
-};
-
-export const lerpArray = (start: number[], end: number[], percent: number) =>
-  start.map((n, i) => lerp(n, end[i], percent));
